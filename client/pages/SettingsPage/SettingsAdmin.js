@@ -199,6 +199,7 @@ const SettingsAdmin = () => {
   `;
 
   const PageHeading = styled.h1`
+    margin-top: 40px;
     color: #171717;
   `;
 
@@ -217,7 +218,6 @@ const SettingsAdmin = () => {
   return (
     <Container>
       <div>
-        <br />
         <PageHeading>Admin Settings</PageHeading>
         <Paragraph>
           The adjustments made here will take effect as soon as they are set.

@@ -180,10 +180,38 @@ const SettingsReg = (props) => {
     color: #171717;
   `;
 
+  // const skillsArr = [];
+
+  // availableSkills.map((skill) => {
+  //   skillsArr.push(
+  //     <Checkbox
+  //       type="checkbox"
+  //       key={skill._id}
+  //       email={email}
+  //       isChecked={false}
+  //       setAvailableSkills={setAvailableSkills}
+  //       setCurrentSkills={setCurrentSkills}
+  //       label={skill.name}
+  //     />
+  //   );
+  // });
+
+  // currentSkills.map((skill) => {
+  //   skillsArr.push(<Checkbox
+  //     type="checkbox"
+  //     key={skill._id}
+  //     email={email}
+  //     isChecked={true}
+  //     setAvailableSkills={setAvailableSkills}
+  //     setCurrentSkills={setCurrentSkills}
+  //     label={skill.name}
+  //       />
+  //   );
+  // });
+
   return (
     <Container>
       <div>
-        <br />
         <PageHeading>Settings</PageHeading>
         <Paragraph>
           The adjustments made here will take effect as soon as they are set.
@@ -216,7 +244,7 @@ const SettingsReg = (props) => {
       <SectionHeading>Skills</SectionHeading>
       <Grid>
         <Paragraph>
-          Add or remove skills you would like to teach be checking the boxes.
+          Add or remove skills you would like to teach by checking the boxes.
         </Paragraph>
         <div>
           {availableSkills.map((skill) => {
