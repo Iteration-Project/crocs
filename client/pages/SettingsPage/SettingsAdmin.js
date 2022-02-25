@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Checkbox } from "./CheckboxSettings";
-import Input from "../../components/Forms/Input";
-import Button from "../../components/Button/Button";
+// import Input from "../../component/Forms/Input";
+import Button from "../../component/Button/Button";
 import { Container } from "../../GlobalStyles";
 import styled from "styled-components";
 
@@ -18,9 +18,8 @@ const SettingsAdmin = () => {
   const [errorExist, setErrorExist] = useState(false);
   const [errorEmail, setErrorEmail] = useState(false);
   const [wrongEmail, setWrongEmail] = useState(false);
-  const [email, setNewEmail] = useState(localStorage.getItem("email"));
+  const [email, setEmail] = useState(() => localStorage.getItem("email"));
   const [emailChange, setEmailChange] = useState(false);
-
   // email validation func, returns boolean;
   function validateEmail(str) {
     const re =
@@ -73,33 +72,8 @@ const SettingsAdmin = () => {
     }
   }, [wrongEmail]);
 
-  // func to delete skill, triggered in SkillAdmin component,
-  // receives new skills and sets state to hold all skills, rerenders component
-  // sorts all skills in ascending order
-  const handleClick = async (arg) => {
-    try {
-      const response = await fetch("/api/delSkill", {
-        method: "DELETE",
-        headers: {
-          "Content-type": "application/json",
-        },
-        body: JSON.stringify({ skillName: arg }),
-      });
-      const newReq = await response.json();
-      newReq.sort((a, b) => (a.name > b.name ? 1 : -1));
-
-      setAllSkills(newReq);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const emailTyped = (e) => {
-    if (e.target.value === "") {
-      setNewEmail(localStorage.getItem("email"));
-    } else {
-      setNewEmail(e.target.value);
-    }
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
   };
 
   const updateEmail = async () => {
@@ -119,14 +93,12 @@ const SettingsAdmin = () => {
         }),
       });
       const data = await res.json();
-      console.log("data:", data);
       if (data === true) {
-        console.log("update local and state email");
         localStorage.removeItem("email");
         localStorage.setItem("email", email);
         setEmailChange(true);
-        setNewEmail(email);
-        document.getElementsByClassName("change-email-form")[0].reset();
+        setEmail(email);
+        // document.getElementsByClassName("change-email-form")[0].reset();
       } else {
         setErrorEmail(true);
       }
@@ -149,14 +121,14 @@ const SettingsAdmin = () => {
     }
   };
 
-  const skillTyped = (e) => {
+  const handleSkillChange = (e) => {
     setNewSkill(e.target.value);
   };
 
   // func to add skill, receives skill from state that is set as value of input on change
   // receives new skills and sets state to hold all skills, rerenders component
   // sorts all skills in ascending order
-  const addSkill = async () => {
+  const handleUpdateSkill = async () => {
     try {
       if (!newSkill) {
         setError(true);
@@ -184,35 +156,7 @@ const SettingsAdmin = () => {
     }
   };
 
-  const Grid = styled.div`
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr;
-    gap: 0px 20px;
-    grid-template-areas: ". .";
-  `;
-
-  const Gap = styled.hr`
-    margin-top: 40px;
-    margin-bottom: 40px;
-    border: 1px solid #f5f5f5;
-  `;
-
-  const PageHeading = styled.h1`
-    color: #171717;
-  `;
-
-  const SectionHeading = styled.h2`
-    color: #171717;
-  `;
-
-  const InputGroup = styled.div`
-    display: flex;
-  `;
-
-  const Paragraph = styled.p`
-    color: #171717;
-  `;
+  console.log("ADMIN PAGE RENDERED");
 
   return (
     <Container>
@@ -234,11 +178,11 @@ const SettingsAdmin = () => {
         <Grid>
           <Paragraph>Update your email here.</Paragraph>
           <InputGroup>
-            <Input
+            <InputElement
               type="email"
               variant="with-button"
-              placeholder={`${email}`}
-              onChange={emailTyped}
+              placeholder={email}
+              onChange={handleEmailChange}
             />
             <Button type="button" size="small" onClick={updateEmail}>
               Update
@@ -252,19 +196,13 @@ const SettingsAdmin = () => {
         <Grid>
           <Paragraph>To add a skill to the app, enter it here.</Paragraph>
           <InputGroup>
-            <Input
-              type="email"
+            <InputElement
+              type="text"
               variant="with-button"
               placeholder="ex: Jedi mind tricks"
-              onChange={emailTyped}
+              onChange={handleSkillChange}
             />
-            <Button
-              type="button"
-              size="small"
-              onClick={() => {
-                console.log("new skill button added");
-              }}
-            >
+            <Button type="button" size="small" onClick={handleUpdateSkill}>
               Update
             </Button>
           </InputGroup>
@@ -339,5 +277,52 @@ const SettingsAdmin = () => {
 //     </div>
 //   </div>
 // </div>
+
+const Grid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr;
+  gap: 0px 20px;
+  grid-template-areas: ". .";
+`;
+
+const Gap = styled.hr`
+  margin-top: 40px;
+  margin-bottom: 40px;
+  border: 1px solid #f5f5f5;
+`;
+
+const PageHeading = styled.h1`
+  color: #171717;
+`;
+
+const SectionHeading = styled.h2`
+  color: #171717;
+`;
+
+const InputGroup = styled.div`
+  display: flex;
+`;
+
+const Paragraph = styled.p`
+  color: #171717;
+`;
+
+const InputElement = styled.input`
+  display: block;
+  width: 100%;
+  border: 1px solid #d0d5dd;
+  box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-right: ${(props) => (props.variant === "with-button" ? "8px" : "0px")};
+
+  &:focus {
+    border: 1px solid #d6bbfb;
+    box-shadow: 0px 1px 2px rgba(16, 24, 40, 0.05), 0px 0px 0px 4px #f4ebff;
+    border-radius: 8px;
+    outline: none;
+  }
+`;
 
 export default SettingsAdmin;

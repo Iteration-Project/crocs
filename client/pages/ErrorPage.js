@@ -1,4 +1,4 @@
-import Container from "../components/Container";
+import Container from "../component/Container";
 import styled from "styled-components";
 
 /*

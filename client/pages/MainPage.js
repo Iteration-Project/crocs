@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Loading } from "../GlobalStyles";
-import { ForceGraph } from "../components/ForceGraph/ForceGraph";
+import { ForceGraph } from "../component/ForceGraph/ForceGraph";
 import { CircularProgress } from "@material-ui/core";
-import SkillsList from "../components/Skill/SkillsList";
-import Navbar from "../components/Navbar/Navbar";
+import SkillsList from "../component/Skill/SkillsList";
+import Navbar from "../component/Navbar/Navbar";
 import Chat from "./Chat";
 
 const MainPage = (props) => {

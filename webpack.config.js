@@ -1,10 +1,9 @@
-const webpack = require("webpack");
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const ImageMinimizerPlugin = require("image-minimizer-webpack-plugin");
 
 module.exports = {
-  entry: ["./client/index.js"],
+  entry: ["./client/index.tsx"],
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "bundle.js",
@@ -27,6 +26,7 @@ module.exports = {
   },
   module: {
     rules: [
+      { test: /\.(ts|tsx)$/, loader: "ts-loader" },
       {
         test: /.(js|jsx)$/,
         exclude: /node_modules/,
@@ -69,6 +69,6 @@ module.exports = {
   ],
   resolve: {
     // Enable importing JS / JSX files without specifying their extension
-    extensions: [".js", ".jsx", ".scss"],
+    extensions: [".ts", ".tsx", ".js", ".jsx", ".scss"],
   },
 };

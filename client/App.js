@@ -1,29 +1,28 @@
-import React, { useState, useEffect, lazy, Suspense } from 'react';
-import { Switch, Route, Redirect } from 'react-router-dom';
-import useLocalStorage from './hooks/useLocalStorage';
-import NewMessages from './Components/NewMessages';
+import React, { useState, useEffect, lazy, Suspense } from "react";
+import { Switch, Route, Redirect } from "react-router-dom";
+import useLocalStorage from "./hooks/useLocalStorage";
+import NewMessages from "./component/NewMessages";
 
 // Styles
-import '@fontsource/inter';
-import GlobalStyles, { Loading } from './GlobalStyles';
-import './index.scss';
-import { CircularProgress } from '@material-ui/core';
-
+import "@fontsource/inter";
+import GlobalStyles, { Loading } from "./GlobalStyles";
+import "./index.scss";
+import { CircularProgress } from "@material-ui/core";
 
 //lazy loading components to split bundle.js into chunks
-const Landing = lazy(() => import('./pages/LandingPage/Landing'));
-const MainPage = lazy(() => import('./pages/MainPage'));
-const ErrorPage = lazy(() => import('./pages/ErrorPage'));
-const Settings = lazy(() => import('./pages/SettingsPage/SettingsPage'));
+const Landing = lazy(() => import("./pages/LandingPage/Landing"));
+const MainPage = lazy(() => import("./pages/MainPage"));
+const ErrorPage = lazy(() => import("./pages/ErrorPage"));
+const Settings = lazy(() => import("./pages/SettingsPage/SettingsPage"));
 
 const App = () => {
   //state updated on login, signup
   const [auth, setAuth] = useState(false);
   //token stored upon successful auth to replace sessions.
-  const authToken = localStorage.getItem('token');
+  const authToken = localStorage.getItem("token");
 
   const [isLoading, setIsLoading] = useState(true);
-  const [currentUser, setCurrentUser] = useLocalStorage('user', {});
+  const [currentUser, setCurrentUser] = useLocalStorage("user", {});
 
   // Do not change; default state must be null;
   const [recipient, setRecipient] = useState(null);
@@ -37,10 +36,10 @@ const App = () => {
   const fetchData = async () => {
     try {
       if (authToken) {
-        const res = await fetch('auth/verify', {
-          method: 'POST',
+        const res = await fetch("auth/verify", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({ token: authToken }),
         });
@@ -86,7 +85,11 @@ const App = () => {
               {auth ? (
                 <Redirect to="/main" />
               ) : (
-                <Landing setCurrentUser={setCurrentUser} auth={auth} setAuth={setAuth} />
+                <Landing
+                  setCurrentUser={setCurrentUser}
+                  auth={auth}
+                  setAuth={setAuth}
+                />
               )}
             </Route>
 
@@ -106,11 +109,18 @@ const App = () => {
             </Route>
 
             <Route exact path="/settings">
-              {auth ? <Settings auth={auth} setAuth={setAuth} /> : <Redirect to="/" />}
+              {auth ? (
+                <Settings auth={auth} setAuth={setAuth} />
+              ) : (
+                <Redirect to="/" />
+              )}
             </Route>
 
             <Route exact path="/new-messages">
-              <NewMessages currentUser={currentUser} setRecipient={setRecipient} />
+              <NewMessages
+                currentUser={currentUser}
+                setRecipient={setRecipient}
+              />
             </Route>
 
             <Route path="/404" component={ErrorPage} />
@@ -123,4 +133,4 @@ const App = () => {
   );
 };
 
-export default App; 
+export default App;

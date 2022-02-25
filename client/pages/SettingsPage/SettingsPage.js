@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import SettingsAdmin from "./SettingsAdmin";
 import SettingsReg from "./SettingsReg";
-import Navbar from "../../components/Navbar/Navbar";
+import Navbar from "../../component/Navbar/Navbar";
 
 /*
 Renders Regular or Admin Settings based on admin prop from localStorage

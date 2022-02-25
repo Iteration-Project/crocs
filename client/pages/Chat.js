@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import socket from "../socket";
 import styled from "styled-components";
-import Modal from "../components/Modal/Modal";
+import Modal from "../component/Modal/Modal";
 import { ChatMessageList } from "./ChatMessageList";
 import { ChatMessage } from "./ChatMessage";
 import { X } from "react-feather";

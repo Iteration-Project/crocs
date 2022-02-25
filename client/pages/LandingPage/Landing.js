@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { data } from "./Data";
-import Button from "../../components/Button/Button";
-import ButtonGroup from "../../components/Button/ButtonGroup";
-import Modal from "../../components/Modal/Modal";
-import Login from "../../components/Forms/Login";
-import Signup from "../../components/Forms/Signup";
+import Button from "../../component/Button/Button";
+import ButtonGroup from "../../component/Button/ButtonGroup";
+import Modal from "../../component/Modal/Modal";
+import Login from "../../component/Forms/Login";
+import Signup from "../../component/Forms/Signup";
 import { Container } from "../../GlobalStyles";
 import {
   InfoSec,

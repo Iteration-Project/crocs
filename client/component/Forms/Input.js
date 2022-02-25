@@ -18,6 +18,7 @@ const InputElement = styled.input`
 `;
 
 const Input = ({ type, variant = "standard", placeholder, onChange }) => {
+  console.log("INPUT RENDERED");
   return (
     <InputElement
       type={type}

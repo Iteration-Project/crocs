@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
-const capitalize = require('../utils/capitalize');
+const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
+const capitalize = require("../utils/capitalize");
 const { Schema } = mongoose;
 
 // sets a schema for the 'user' collection
@@ -13,13 +13,13 @@ const userSchema = new Schema(
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     isAdmin: { type: Boolean, required: true, default: false },
-    userGroup: { type: String, default: 'user' },
+    userGroup: { type: String, default: "user" },
     teach: [
       {
         name: String,
         _id: {
           type: Schema.Types.ObjectId,
-          ref: 'skill',
+          ref: "skill",
         },
       },
     ],
@@ -28,22 +28,25 @@ const userSchema = new Schema(
         name: String,
         _id: {
           type: Schema.Types.ObjectId,
-          ref: 'skill',
+          ref: "skill",
         },
       },
     ],
     newMessages: [
       {
-        from: { type: String, required: [true, 'Please provide email of message origin'] },
-        name: { type: String, required: [true, 'The sender must have a name'] },
+        from: {
+          type: String,
+          required: [true, "Please provide email of message origin"],
+        },
+        name: { type: String, required: [true, "The sender must have a name"] },
       },
     ],
   },
-  { toJSON: { virtuals: true }, toObject: { virtuals: true } },
+  { toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
 // DOCUMENT MIDDLEWARE: runs before .save() and .create()
-userSchema.pre('save', function (next) {
+userSchema.pre("save", function (next) {
   this.firstName = capitalize(this.firstName);
   this.lastName = capitalize(this.lastName);
   this.name = `${this.firstName} ${this.lastName}`;
@@ -52,7 +55,7 @@ userSchema.pre('save', function (next) {
 });
 
 //set up preprocess for encrypting password
-userSchema.pre('save', async function save(next) {
+userSchema.pre("save", async function save(next) {
   try {
     const SALT_WORK_FACTOR = 10;
     const salt = await bcrypt.genSalt(SALT_WORK_FACTOR);
@@ -69,6 +72,6 @@ userSchema.methods.verify = async function (password) {
   return check;
 };
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model("User", userSchema);
 
 module.exports = User;

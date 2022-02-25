@@ -1,11 +1,13 @@
 /* eslint-disable react/jsx-key */
 import React, { useEffect, useState } from "react";
 import { Checkbox } from "./CheckboxSettings";
-import Input from "../../components/Forms/Input";
-import Button from "../../components/Button/Button";
+import Input from "../../component/Forms/Input";
+import Button from "../../component/Button/Button";
 import { Container } from "../../GlobalStyles";
+// eslint-disable-next-line import/no-unresolved
 import styled from "styled-components";
 
+// eslint-disable-next-line no-unused-vars
 const SettingsReg = (props) => {
   // holds the new skills the user may want to teach
   const [availableSkills, setAvailableSkills] = useState([]);
