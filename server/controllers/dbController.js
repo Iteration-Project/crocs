@@ -1,6 +1,10 @@
 /* eslint-disable prefer-const */
-const models = require('../models/pfaModels');
+const User = require('../models/userModel');
 const mongoose = require('mongoose');
+const UserGroup = require('../models/userGroupModel');
+const Skill = require('../models/skillModel');
+const SkillGroup = require('../models/skillGroupModel.js');
+const Message = require('../models/messageModel');
 
 const dbController = {};
 
@@ -17,15 +21,14 @@ dbController.getUsers = async (req, res, next) => {
       email: 1,
     };
 
-    const users = await models.User.find(queryFilter, specifiedFields);
+    const users = await User.find(queryFilter, specifiedFields);
     res.locals.users = users;
     res.locals.userCount = users.length;
-    next();
+    // next();
+
+    res.status(200).json({ status: 'success', users });
   } catch (err) {
-    next({
-      log: 'Express error handler caught an error at dbController.getUsers',
-      message: { err },
-    });
+    next(err);
   }
 };
 
@@ -41,17 +44,11 @@ dbController.getUserGroups = async (req, res, next) => {
       color: 1,
     };
 
-    const userGroups = await models.UserGroup.find(
-      queryFilter,
-      specifiedFields
-    );
+    const userGroups = await UserGroup.find(queryFilter, specifiedFields);
     res.locals.userGroups = userGroups;
     next();
   } catch (err) {
-    next({
-      log: 'Express error handler caught an error at dbController.getUserGroups',
-      message: { err },
-    });
+    next(err);
   }
 };
 
@@ -70,15 +67,12 @@ dbController.getSkills = async (req, res, next) => {
       teachers: 1,
     };
 
-    const skills = await models.Skill.find(queryFilter, specifiedFields);
+    const skills = await Skill.find(queryFilter, specifiedFields);
     res.locals.skills = skills;
     res.locals.skillCount = skills.length;
     next();
   } catch (err) {
-    next({
-      log: 'Express error handler caught an error at dbController.getSkills',
-      message: { err },
-    });
+    next(err);
   }
 };
 
@@ -94,30 +88,17 @@ dbController.getSkillGroups = async (req, res, next) => {
       color: 1,
     };
 
-    const skillGroups = await models.SkillGroup.find(
-      queryFilter,
-      specifiedFields
-    );
+    const skillGroups = await SkillGroup.find(queryFilter, specifiedFields);
     res.locals.skillGroups = skillGroups;
     next();
   } catch (err) {
-    next({
-      log: 'Express error handler caught an error at dbController.getSkillGroups',
-      message: { err },
-    });
+    next(err);
   }
 };
 
 dbController.createMessage = async (req, res, next) => {
   try {
-    let {
-      contactEmail,
-      sourceName,
-      sourceEmail,
-      targetEmail,
-      targetName,
-      skill,
-    } = req.body;
+    let { contactEmail, sourceName, sourceEmail, targetEmail, targetName, skill } = req.body;
 
     if (!contactEmail) {
       contactEmail = sourceEmail;
@@ -144,8 +125,8 @@ dbController.createMessage = async (req, res, next) => {
       skill,
     };
 
-    const message = await models.Message.create(messageDoc);
-    await models.User.updateOne({email: targetEmail}, {$set: {newMessage: true}});
+    const message = await Message.create(messageDoc);
+    await User.updateOne({ email: targetEmail }, { $set: { newMessage: true } });
 
     return next();
   } catch (err) {
@@ -179,19 +160,16 @@ dbController.getMessages = async (req, res, next) => {
       },
     };
 
-    const messages = await models.Message.find(
-      queryFilter,
-      specifiedFields
-    ).sort({ createdAt: -1 });
-    await models.Message.updateMany(queryFilter, updateFields);
+    const messages = await Message.find(queryFilter, specifiedFields).sort({
+      createdAt: -1,
+    });
+    await Message.updateMany(queryFilter, updateFields);
 
     res.locals.messages = messages;
 
     return next();
   } catch (err) {
-    console.log('Error at dbController.getMessages');
-    console.log(err);
-    return next();
+    next(err);
   }
 };
 
@@ -207,7 +185,7 @@ dbController.delMessages = async (req, res, next) => {
       _id: mongoose.Types.ObjectId(req.body.messageID),
     };
 
-    const message = await models.Message.findOneAndDelete(queryFilter);
+    const message = await Message.findOneAndDelete(queryFilter);
 
     if (message) {
       res.locals.deleted = true;
@@ -218,7 +196,7 @@ dbController.delMessages = async (req, res, next) => {
     console.log('Error at dbController.delMessages');
     console.log(err);
     res.locals.deleted = false;
-    return next();
+    return next(err);
   }
 };
 
@@ -228,7 +206,7 @@ dbController.addSkill = async (req, res, next) => {
       name: req.body.skillName,
     };
 
-    await models.Skill.create(skillDoc);
+    await Skill.create(skillDoc);
 
     res.locals.getSkills = true;
     return next();
@@ -236,7 +214,7 @@ dbController.addSkill = async (req, res, next) => {
     console.log('Error at dbController.addSkill');
     console.log(err);
     res.locals.deleted = false;
-    return next();
+    return next(err);
   }
 };
 
@@ -250,8 +228,7 @@ dbController.delSkill = async (req, res, next) => {
       name: req.body.skillName,
     };
 
-    const skill = await models.Skill.findOneAndDelete(queryFilter);
-
+    const skill = await Skill.findOneAndDelete(queryFilter);
 
     const teachers = skill.teachers;
 
@@ -260,49 +237,49 @@ dbController.delSkill = async (req, res, next) => {
       userIDs.push(mongoose.Types.ObjectId(teacher._id));
     }
 
-    
-    await models.User.updateMany({_id: {$in: userIDs}}, {$pull: {teach: {name: skill.name}}});
+    await User.updateMany({ _id: { $in: userIDs } }, { $pull: { teach: { name: skill.name } } });
 
     res.locals.getSkills = true;
     return next();
   } catch (err) {
     console.log('Error at dbController.delSkill');
     console.log(err);
-    return next();
+    return next(err);
   }
 };
-
 
 dbController.addUserSkill = async (req, res, next) => {
   try {
     const { skillName, email } = req.body;
     // console.log('req body: ', req.body);
 
-    const userInfo = await models.User.findOne({email}, {});
-
+    const userInfo = await User.findOne({ email }, {});
 
     const newTeacher = {
       firstName: userInfo.firstName,
       lastName: userInfo.lastName,
       email,
-      _id: userInfo._id
+      _id: userInfo._id,
     };
 
-    const skillInfo = await models.Skill.findOneAndUpdate({name: skillName}, { $push: {teachers: newTeacher}});
+    const skillInfo = await Skill.findOneAndUpdate(
+      { name: skillName },
+      { $push: { teachers: newTeacher } },
+    );
 
     const newSkill = {
-      name : skillInfo.name,
-      _id : skillInfo._id,
+      name: skillInfo.name,
+      _id: skillInfo._id,
     };
 
-    await models.User.updateOne({email}, { $push: {teach: newSkill}});
+    await User.updateOne({ email }, { $push: { teach: newSkill } });
 
     res.locals.getSkills = true;
     return next();
   } catch (err) {
     console.log('Error at dbController.addUserSkill');
     console.log(err);
-    return next();
+    return next(err);
   }
 };
 
@@ -310,16 +287,22 @@ dbController.delUserSkill = async (req, res, next) => {
   try {
     const { skillName, email } = req.body;
 
-    const userInfo = await models.User.findOneAndUpdate({email}, {$pull: {teach: {name: skillName}}});
+    const userInfo = await User.findOneAndUpdate(
+      { email },
+      { $pull: { teach: { name: skillName } } },
+    );
 
-    const skillInfo = await models.Skill.findOneAndUpdate({name: skillName}, { $pull: {teachers: {email: email}}});
+    const skillInfo = await Skill.findOneAndUpdate(
+      { name: skillName },
+      { $pull: { teachers: { email: email } } },
+    );
 
     res.locals.getSkills = true;
     return next();
   } catch (err) {
     console.log('Error at dbController.delUserSkill');
     console.log(err);
-    return next();
+    return next(err);
   }
 };
 
@@ -327,28 +310,28 @@ dbController.updateemail = async (req, res, next) => {
   try {
     const { newEmail, currentEmail } = req.body;
 
-    const conflict = await models.User.findOne({email: newEmail});
+    const conflict = await User.findOne({ email: newEmail });
 
     if (conflict != null) {
       res.locals.update = false;
       return next();
     }
 
-    const skillFilter = {'teachers.email': currentEmail};
-    const skillUpdate = {$set: {'teachers.$.email' : newEmail}};
-    await models.Skill.updateMany(skillFilter, skillUpdate);
+    const skillFilter = { 'teachers.email': currentEmail };
+    const skillUpdate = { $set: { 'teachers.$.email': newEmail } };
+    await Skill.updateMany(skillFilter, skillUpdate);
 
-    const targetEmailFilter = {targetEmail: currentEmail};
-    const targetEmailUpdate = {$set: {targetEmail: newEmail}};
-    await models.Message.updateMany(targetEmailFilter, targetEmailUpdate);
+    const targetEmailFilter = { targetEmail: currentEmail };
+    const targetEmailUpdate = { $set: { targetEmail: newEmail } };
+    await Message.updateMany(targetEmailFilter, targetEmailUpdate);
 
-    const sourceEmailFilter = {sourceEmail: currentEmail};
-    const sourceEmailUpdate = {$set: {sourceEmail: newEmail}};
-    await models.Message.updateMany(sourceEmailFilter, sourceEmailUpdate);
+    const sourceEmailFilter = { sourceEmail: currentEmail };
+    const sourceEmailUpdate = { $set: { sourceEmail: newEmail } };
+    await Message.updateMany(sourceEmailFilter, sourceEmailUpdate);
 
-    const userFilter = {email: currentEmail};
-    const userUpdate = {$set: {email: newEmail}};
-    await models.User.updateOne(userFilter, userUpdate);
+    const userFilter = { email: currentEmail };
+    const userUpdate = { $set: { email: newEmail } };
+    await User.updateOne(userFilter, userUpdate);
 
     res.locals.update = true;
     return next();
@@ -356,9 +339,8 @@ dbController.updateemail = async (req, res, next) => {
     console.log('Error at dbController.delUserSkill');
     console.log(err);
     res.locals.update = false;
-    return next();
+    return next(err);
   }
 };
-
 
 module.exports = dbController;
